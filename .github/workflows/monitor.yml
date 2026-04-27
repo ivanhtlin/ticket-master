@@ -34,6 +34,11 @@ jobs:
       - name: Install Playwright browser
         run: python -m playwright install chromium
 
+      - name: Write watchlist from secret
+        env:
+          WATCHLIST_YAML: ${{ secrets.WATCHLIST_YAML }}
+        run: echo "$WATCHLIST_YAML" > watchlist.yaml
+
       - name: Run monitor (single pass)
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}

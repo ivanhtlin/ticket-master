@@ -1,41 +1,7 @@
+# Real config is stored in GitHub Secret "WATCHLIST_YAML".
+# This file is a placeholder so the repo can be public without exposing URLs.
 telegram:
-  token: ""          # leave empty; set env var TELEGRAM_TOKEN at runtime
-  chat_id: "1010539912"
+  token: ""
+  chat_id: ""
 
-sites:
-  - name: "遠大 TicketPlus"
-    url: "https://ticketplus.com.tw/activity/6501d9f22521787e369776452b6c9a59"
-    use_playwright: true
-    wait_selector: ".sold-out, .btn-buy, [class*='soldOut'], [class*='sold-out']"
-    check_type: "text_disappear"
-    target_text: "銷售一空"
-    message: "🎟️ 遠大 TicketPlus 有票了！快去搶購！\nhttps://ticketplus.com.tw/activity/6501d9f22521787e369776452b6c9a59"
-
-  - name: "寬宏"
-    url: "https://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P163GNT4&PRODUCT_ID=P15VPHA7"
-    use_playwright: false
-    check_type: "number_above_zero"
-    selector: "#AMOUNT"   # <span id="AMOUNT"> 顯示剩餘張數
-    message: "🎟️ 寬宏有票了！快去搶購！\nhttps://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P163GNT4&PRODUCT_ID=P15VPHA7"
-
-  - name: "寬宏 P15W6CDJ"
-    url: "https://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P15W6CDJ&PRODUCT_ID=P15VPHA7"
-    use_playwright: false
-    check_type: "number_above_zero"
-    selector: "#AMOUNT"
-    message: "🎟️ 寬宏 P15W6CDJ 有票了！快去搶購！\nhttps://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P15W6CDJ&PRODUCT_ID=P15VPHA7"
-
-  - name: "龍山寺燈籠磁鐵"
-    url: "https://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
-    use_playwright: false
-    check_type: "css_disappear"
-    selector: "#flush-collapse86 button[disabled][value='checkout']"
-    message: "🏮 龍山寺燈籠磁鐵 開賣了！快去搶購！\nhttps://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
-
-  - name: "KKTIX 全票"
-    url: "https://kktix.com/events/juide/registrations/new"
-    use_playwright: true
-    wait_selector: "#ticket_1019960"
-    check_type: "css_disappear"
-    selector: "#ticket_1019960 span.ticket-quantity"
-    message: "🎟️ KKTIX 全票 有票了！快去搶購！\nhttps://kktix.com/events/juide/registrations/new"
+sites: []
