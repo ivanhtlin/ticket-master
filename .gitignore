@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.log
+test_results.txt
+ticketplus_text.txt
+ticketplus_debug.png
+debug_out.txt
+chars_out.txt
