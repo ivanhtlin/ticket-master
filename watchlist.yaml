@@ -18,6 +18,13 @@ sites:
     selector: "#AMOUNT"   # <span id="AMOUNT"> 顯示剩餘張數
     message: "🎟️ 寬宏有票了！快去搶購！\nhttps://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P163GNT4&PRODUCT_ID=P15VPHA7"
 
+  - name: "寬宏 P15W6CDJ"
+    url: "https://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P15W6CDJ&PRODUCT_ID=P15VPHA7"
+    use_playwright: false
+    check_type: "number_above_zero"
+    selector: "#AMOUNT"
+    message: "🎟️ 寬宏 P15W6CDJ 有票了！快去搶購！\nhttps://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P15W6CDJ&PRODUCT_ID=P15VPHA7"
+
   - name: "龍山寺燈籠磁鐵"
     url: "https://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
     use_playwright: false
