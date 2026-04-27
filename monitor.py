@@ -137,6 +137,18 @@ def check_site(site: dict) -> bool:
                  site["name"], selector, text, count, available)
         return available
 
+    if check_type == "css_disappear":
+        # Element present = sold out; element gone = available
+        selector = site.get("selector", "")
+        if not selector:
+            log.warning("[%s] selector is empty, skipping", site["name"])
+            return False
+        el = soup.select_one(selector)
+        available = el is None
+        log.info("[%s] selector=%r found=%s → available=%s",
+                 site["name"], selector, el is not None, available)
+        return available
+
     log.warning("[%s] Unknown check_type: %s", site["name"], check_type)
     return False
 

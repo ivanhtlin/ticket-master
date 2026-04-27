@@ -18,6 +18,13 @@ sites:
     selector: "#AMOUNT"   # <span id="AMOUNT"> 顯示剩餘張數
     message: "🎟️ 寬宏有票了！快去搶購！\nhttps://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P163GNT4&PRODUCT_ID=P15VPHA7"
 
+  - name: "龍山寺燈籠磁鐵"
+    url: "https://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
+    use_playwright: false
+    check_type: "css_disappear"
+    selector: "#flush-collapse86 button[disabled][value='checkout']"
+    message: "🏮 龍山寺燈籠磁鐵 開賣了！快去搶購！\nhttps://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
+
   - name: "KKTIX"
     url: "https://kktix.com/events/juide/registrations/new"
     skip: true              # Cloudflare Managed Challenge 擋住，requests 和 headers 模擬均 403
