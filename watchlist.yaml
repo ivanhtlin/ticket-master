@@ -25,11 +25,10 @@ sites:
     selector: "#flush-collapse86 button[disabled][value='checkout']"
     message: "🏮 龍山寺燈籠磁鐵 開賣了！快去搶購！\nhttps://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
 
-  - name: "KKTIX"
+  - name: "KKTIX 全票"
     url: "https://kktix.com/events/juide/registrations/new"
-    skip: true              # Cloudflare Managed Challenge 擋住，requests 和 headers 模擬均 403
     use_playwright: true
-    wait_selector: ".ticket-unit, .sold-out-label, [data-sold-out]"
-    check_type: "text_disappear"
-    target_text: "Sold Out"
-    message: "🎟️ KKTIX 有票了！快去搶購！\nhttps://kktix.com/events/juide/registrations/new"
+    wait_selector: "#ticket_1019960"
+    check_type: "css_disappear"
+    selector: "#ticket_1019960 span.ticket-quantity"
+    message: "🎟️ KKTIX 全票 有票了！快去搶購！\nhttps://kktix.com/events/juide/registrations/new"
