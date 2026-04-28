@@ -1,7 +1,71 @@
-# Real config is stored in GitHub Secret "WATCHLIST_YAML".
-# This file is a placeholder so the repo can be public without exposing URLs.
 telegram:
-  token: ""
-  chat_id: ""
+  token: ""      # 從環境變數 TELEGRAM_TOKEN 讀取
+  chat_id: ""    # 從環境變數 TELEGRAM_CHAT_ID 讀取
 
-sites: []
+sites:
+
+  # ── 遠大 TicketPlus ──────────────────────────────────────────────────────────
+  - name: "遠大 TicketPlus"
+    url: "https://ticketplus.com.tw/activity/6501d9f22521787e369776452b6c9a59"
+    check_type: "text_disappear"
+    target_text: "銷售一空"
+    use_playwright: true
+    wait_selector: ".activity-detail, [class*='ticket'], [class*='sold']"
+    message: "🎫 遠大 TicketPlus 有票了！\nhttps://ticketplus.com.tw/activity/6501d9f22521787e369776452b6c9a59"
+    skip: false
+
+  # ── 寬宏 ────────────────────────────────────────────────────────────────────
+  - name: "寬宏 P163GNT4"
+    url: "https://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P163GNT4&PRODUCT_ID=P15VPHA7"
+    check_type: "number_above_zero"
+    selector: "#AMOUNT"
+    use_playwright: false
+    message: "🎫 寬宏 P163GNT4 有票了！\nhttps://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P163GNT4&PRODUCT_ID=P15VPHA7"
+    skip: false
+
+  - name: "寬宏 P15W6CDJ"
+    url: "https://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P15W6CDJ&PRODUCT_ID=P15VPHA7"
+    check_type: "number_above_zero"
+    selector: "#AMOUNT"
+    use_playwright: false
+    message: "🎫 寬宏 P15W6CDJ 有票了！\nhttps://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P15W6CDJ&PRODUCT_ID=P15VPHA7"
+    skip: false
+
+  # ── 龍山寺 ──────────────────────────────────────────────────────────────────
+  - name: "龍山寺燈籠磁鐵"
+    url: "https://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
+    check_type: "css_disappear"
+    selector: "#flush-collapse86 button[disabled][value='checkout']"
+    use_playwright: false
+    message: "🛕 龍山寺燈籠磁鐵可以購買了！\nhttps://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
+    skip: false
+
+  # ── KKTIX（Cloudflare 問題暫停）─────────────────────────────────────────────
+  - name: "KKTIX 全票"
+    url: "https://kktix.com/events/juide/registrations/new"
+    check_type: "text_disappear"
+    target_text: "已售完"
+    use_playwright: true
+    message: "🎫 KKTIX 有票了！\nhttps://kktix.com/events/juide/registrations/new"
+    skip: true
+
+  # ── 拓元 TixCraft 金善鎬 ────────────────────────────────────────────────────
+  - name: "TixCraft 金善鎬 A區 (5880)"
+    url: "https://tixcraft.com/ticket/area/26_seonho/22370"
+    check_type: "number_changed"
+    row_contains: "A區"
+    state_key: "tixcraft_seonho_A"
+    use_playwright: true
+    wait_selector: ".progress-step"
+    message: "🎫 TixCraft 金善鎬 <b>A區 (5880)</b> 票數變動！\nhttps://tixcraft.com/ticket/area/26_seonho/22370"
+    skip: false
+
+  - name: "TixCraft 金善鎬 B區 (4880)"
+    url: "https://tixcraft.com/ticket/area/26_seonho/22370"
+    check_type: "number_changed"
+    row_contains: "B區"
+    state_key: "tixcraft_seonho_B"
+    use_playwright: true
+    wait_selector: ".progress-step"
+    message: "🎫 TixCraft 金善鎬 <b>B區 (4880)</b> 票數變動！\nhttps://tixcraft.com/ticket/area/26_seonho/22370"
+    skip: false

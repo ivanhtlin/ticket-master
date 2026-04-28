@@ -41,24 +41,8 @@ jobs:
           key: monitor-state-${{ github.run_number }}
           restore-keys: monitor-state-
 
-      - name: Write watchlist from secret
-        env:
-          WATCHLIST_YAML: ${{ secrets.WATCHLIST_YAML }}
-        run: echo "$WATCHLIST_YAML" > watchlist.yaml
-
-      - name: DEBUG dump watchlist
-        run: cat watchlist.yaml
-
       - name: Run monitor (single pass)
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-        run: |
-          python - <<'EOF'
-          import yaml, os, monitor
-
-          with open("watchlist.yaml", encoding="utf-8") as f:
-              config = yaml.safe_load(f)
-
-          config["telegram"]["token"] = os.environ["TELEGRAM_TOKEN"]
-          monitor.run_once(config)
-          EOF
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -c "import monitor; monitor.run_once(monitor.load_config())"

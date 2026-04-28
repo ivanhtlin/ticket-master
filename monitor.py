@@ -1,4 +1,6 @@
 import os
+import re
+import json
 import requests
 import yaml
 import time
@@ -11,6 +13,24 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 log = logging.getLogger(__name__)
+
+STATE_FILE = os.environ.get("MONITOR_STATE_FILE", "monitor_state.json")
+
+
+def load_state() -> dict:
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE, encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return {}
+
+
+def save_state(state: dict) -> None:
+    with open(STATE_FILE, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=2)
+
 
 HEADERS = {
     "User-Agent": (
@@ -25,10 +45,11 @@ HEADERS = {
 def load_config(path: str = "watchlist.yaml") -> dict:
     with open(path, encoding="utf-8") as f:
         config = yaml.safe_load(f)
-    # Environment variable takes priority over placeholder in yaml
-    env_token = os.environ.get("TELEGRAM_TOKEN")
-    if env_token:
-        config["telegram"]["token"] = env_token
+    # Environment variables take priority over placeholders in yaml
+    if os.environ.get("TELEGRAM_TOKEN"):
+        config["telegram"]["token"] = os.environ["TELEGRAM_TOKEN"]
+    if os.environ.get("TELEGRAM_CHAT_ID"):
+        config["telegram"]["chat_id"] = os.environ["TELEGRAM_CHAT_ID"]
     return config
 
 
@@ -149,8 +170,67 @@ def check_site(site: dict) -> bool:
                  site["name"], selector, el is not None, available)
         return available
 
+    if check_type == "number_changed":
+        count = _extract_count(site, soup)
+        if count is None:
+            return False
+        state_key = site.get("state_key", site["name"])
+        state = load_state()
+        prev = state.get(state_key)
+        state[state_key] = count
+        save_state(state)
+        if prev is None:
+            log.info("[%s] first run, count=%d — no notification", site["name"], count)
+            return False
+        changed = count != prev
+        log.info("[%s] prev=%s now=%d → changed=%s", site["name"], prev, count, changed)
+        if changed:
+            site["_prev_count"] = prev
+            site["_curr_count"] = count
+        return changed
+
     log.warning("[%s] Unknown check_type: %s", site["name"], check_type)
     return False
+
+
+def _extract_count(site: dict, soup: BeautifulSoup) -> int | None:
+    """Extract ticket count using selector + optional row_contains filter."""
+    selector = site.get("selector", "")
+    row_contains = site.get("row_contains", "")
+
+    if row_contains:
+        # Walk <tr> / <li> elements; find the one whose text contains row_contains
+        for row in soup.find_all(["tr", "li"]):
+            row_text = row.get_text()
+            if row_contains not in row_text:
+                continue
+            # "剩餘 N" pattern → available count
+            m = re.search(r'剩餘\s*(\d[\d,]*)', row_text)
+            if m:
+                return int(m.group(1).replace(",", ""))
+            # Explicit sold-out markers → 0
+            if any(kw in row_text for kw in ("已售完", "售完", "sold out", "Sold Out")):
+                return 0
+            # Fall back: pick smallest number in row (remaining < price)
+            nums = [int(n.replace(",", "")) for n in re.findall(r'\d[\d,]*', row_text)]
+            nums = [n for n in nums if n < 1_000]   # prices are typically ≥ 1000
+            if nums:
+                return min(nums)
+            return 0  # row found but no parseable count → treat as 0
+        log.warning("[%s] row_contains=%r not found in page", site["name"], row_contains)
+        return None
+
+    if selector:
+        el = soup.select_one(selector)
+        if el is None:
+            log.warning("[%s] selector %r not found", site["name"], selector)
+            return None
+        text = el.get_text(strip=True).replace(",", "")
+        m = re.search(r'\d+', text)
+        return int(m.group()) if m else 0
+
+    log.warning("[%s] number_changed requires selector or row_contains", site["name"])
+    return None
 
 
 # ── Main loop ─────────────────────────────────────────────────────────────────
@@ -162,7 +242,14 @@ def run_once(config: dict) -> None:
             log.info("[%s] skipped (skip=true in config)", site["name"])
             continue
         if check_site(site):
-            send_telegram(tg["token"], tg["chat_id"], site["message"])
+            msg = site["message"]
+            # Append count-change info for number_changed type
+            prev = site.get("_prev_count")
+            curr = site.get("_curr_count")
+            if prev is not None and curr is not None:
+                direction = "▲" if curr > prev else "▼"
+                msg = f"{msg}\n{direction} {prev} → {curr} 張"
+            send_telegram(tg["token"], tg["chat_id"], msg)
 
 
 def main(interval: int = 60) -> None:
