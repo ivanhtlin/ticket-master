@@ -34,8 +34,8 @@ sites:
   # ── 龍山寺 ──────────────────────────────────────────────────────────────────
   - name: "龍山寺燈籠磁鐵"
     url: "https://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
-    check_type: "css_disappear"
-    selector: "#flush-collapse86 button[disabled][value='checkout']"
+    check_type: "text_disappear"
+    target_text: "已銷售完畢"
     use_playwright: false
     message: "🛕 龍山寺燈籠磁鐵可以購買了！\nhttps://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
     skip: false
