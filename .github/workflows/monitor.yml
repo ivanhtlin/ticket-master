@@ -34,10 +34,20 @@ jobs:
       - name: Install Playwright browser
         run: python -m playwright install chromium
 
+      - name: Restore monitor state
+        uses: actions/cache@v4
+        with:
+          path: monitor_state.json
+          key: monitor-state-${{ github.run_number }}
+          restore-keys: monitor-state-
+
       - name: Write watchlist from secret
         env:
           WATCHLIST_YAML: ${{ secrets.WATCHLIST_YAML }}
         run: echo "$WATCHLIST_YAML" > watchlist.yaml
+
+      - name: DEBUG dump watchlist
+        run: cat watchlist.yaml
 
       - name: Run monitor (single pass)
         env:
