@@ -237,6 +237,10 @@ def _extract_count(site: dict, soup: BeautifulSoup) -> int | None:
 
 def run_once(config: dict) -> None:
     tg = config["telegram"]
+    if not tg.get("token"):
+        log.error("TELEGRAM_TOKEN is not set — notifications will not be sent")
+    if not tg.get("chat_id"):
+        log.error("TELEGRAM_CHAT_ID is not set — notifications will not be sent")
     for site in config["sites"]:
         if site.get("skip"):
             log.info("[%s] skipped (skip=true in config)", site["name"])
