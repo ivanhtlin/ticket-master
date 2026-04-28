@@ -80,6 +80,15 @@ def fetch_playwright(url: str, wait_selector: str | None = None) -> str | None:
             ctx = browser.new_context(
                 user_agent=HEADERS["User-Agent"],
                 locale="zh-TW",
+                timezone_id="Asia/Taipei",
+                viewport={"width": 1280, "height": 800},
+                extra_http_headers={
+                    "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                    "sec-ch-ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": '"Windows"',
+                },
             )
             page = ctx.new_page()
             page.goto(url, timeout=30_000, wait_until="domcontentloaded")
@@ -218,6 +227,9 @@ def _extract_count(site: dict, soup: BeautifulSoup) -> int | None:
                 return min(nums)
             return 0  # row found but no parseable count → treat as 0
         log.warning("[%s] row_contains=%r not found in page", site["name"], row_contains)
+        # dump first 10 li/tr texts to help diagnose what the page actually contains
+        samples = [el.get_text(strip=True)[:80] for el in soup.find_all(["li", "tr"])[:10]]
+        log.warning("[%s] page sample elements: %s", site["name"], samples)
         return None
 
     if selector:
