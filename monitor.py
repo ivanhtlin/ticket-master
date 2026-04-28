@@ -108,13 +108,21 @@ def fetch_playwright(url: str, wait_selector: str | None = None) -> str | None:
         return None
 
 
+_fetch_cache: dict[str, str | None] = {}
+
+
 def fetch(site: dict) -> str | None:
-    use_playwright = site.get("use_playwright", False)
     url = site["url"]
+    if url in _fetch_cache:
+        log.info("Using cached HTML for %s", url)
+        return _fetch_cache[url]
+    use_playwright = site.get("use_playwright", False)
     if use_playwright:
-        wait_selector = site.get("wait_selector")
-        return fetch_playwright(url, wait_selector)
-    return fetch_requests(url)
+        html = fetch_playwright(url, site.get("wait_selector"))
+    else:
+        html = fetch_requests(url)
+    _fetch_cache[url] = html
+    return html
 
 
 # ── Telegram ──────────────────────────────────────────────────────────────────
@@ -248,6 +256,8 @@ def _extract_count(site: dict, soup: BeautifulSoup) -> int | None:
 # ── Main loop ─────────────────────────────────────────────────────────────────
 
 def run_once(config: dict) -> None:
+    global _fetch_cache
+    _fetch_cache = {}  # reset per-run cache
     tg = config["telegram"]
     if not tg.get("token"):
         log.error("TELEGRAM_TOKEN is not set — notifications will not be sent")
