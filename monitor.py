@@ -210,35 +210,60 @@ def check_site(site: dict) -> bool:
     return False
 
 
+def _cell_count(row, count_col) -> int | None:
+    """Extract count from a specific cell (count_col) or full row text."""
+    if count_col is not None:
+        cells = row.find_all(["td", "th"])
+        if not cells:
+            return None
+        try:
+            cell_text = cells[count_col].get_text(strip=True)
+        except IndexError:
+            return None
+        if any(kw in cell_text for kw in ("已售完", "售完", "sold out", "Sold Out")):
+            return 0
+        m = re.search(r'\d[\d,]*', cell_text)
+        return int(m.group().replace(",", "")) if m else 0
+    else:
+        row_text = row.get_text()
+        m = re.search(r'剩餘\s*(\d[\d,]*)', row_text)
+        if m:
+            return int(m.group(1).replace(",", ""))
+        if any(kw in row_text for kw in ("已售完", "售完", "sold out", "Sold Out")):
+            return 0
+        nums = [int(n.replace(",", "")) for n in re.findall(r'\d[\d,]*', row_text)]
+        nums = [n for n in nums if n < 1_000]
+        return min(nums) if nums else 0
+
+
 def _extract_count(site: dict, soup: BeautifulSoup) -> int | None:
-    """Extract ticket count using selector + optional row_contains filter."""
+    """Extract ticket count. Supports row_contains (first match), row_contains_all (sum), or selector."""
     selector = site.get("selector", "")
     row_contains = site.get("row_contains", "")
+    row_contains_all = site.get("row_contains_all", "")
+    count_col = site.get("count_col")  # e.g. -1 for last cell
 
-    if row_contains:
-        # Walk <tr> / <li> elements; find the one whose text contains row_contains
+    keyword = row_contains or row_contains_all
+    if keyword:
+        aggregate = bool(row_contains_all)
+        total = 0
+        found = False
         for row in soup.find_all(["tr", "li"]):
-            row_text = row.get_text()
-            if row_contains not in row_text:
+            if keyword not in row.get_text():
                 continue
-            # "剩餘 N" pattern → available count
-            m = re.search(r'剩餘\s*(\d[\d,]*)', row_text)
-            if m:
-                return int(m.group(1).replace(",", ""))
-            # Explicit sold-out markers → 0
-            if any(kw in row_text for kw in ("已售完", "售完", "sold out", "Sold Out")):
-                return 0
-            # Fall back: pick smallest number in row (remaining < price)
-            nums = [int(n.replace(",", "")) for n in re.findall(r'\d[\d,]*', row_text)]
-            nums = [n for n in nums if n < 1_000]   # prices are typically ≥ 1000
-            if nums:
-                return min(nums)
-            return 0  # row found but no parseable count → treat as 0
-        log.warning("[%s] row_contains=%r not found in page", site["name"], row_contains)
-        # dump first 10 li/tr texts to help diagnose what the page actually contains
-        samples = [el.get_text(strip=True)[:80] for el in soup.find_all(["li", "tr"])[:10]]
-        log.warning("[%s] page sample elements: %s", site["name"], samples)
-        return None
+            count = _cell_count(row, count_col)
+            if count is None:
+                continue
+            found = True
+            total += count
+            if not aggregate:
+                return count  # first-match mode: return immediately
+        if not found:
+            log.warning("[%s] %r not found in page", site["name"], keyword)
+            samples = [el.get_text(strip=True)[:80] for el in soup.find_all(["li", "tr"])[:10]]
+            log.warning("[%s] page sample elements: %s", site["name"], samples)
+            return None
+        return total  # aggregate mode returns sum; first-match already returned above
 
     if selector:
         el = soup.select_one(selector)
@@ -249,7 +274,7 @@ def _extract_count(site: dict, soup: BeautifulSoup) -> int | None:
         m = re.search(r'\d+', text)
         return int(m.group()) if m else 0
 
-    log.warning("[%s] number_changed requires selector or row_contains", site["name"])
+    log.warning("[%s] number_changed requires selector, row_contains, or row_contains_all", site["name"])
     return None
 
 

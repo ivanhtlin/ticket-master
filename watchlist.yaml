@@ -31,6 +31,67 @@ sites:
     message: "🎫 寬宏 P15W6CDJ 有票了！\nhttps://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P15W6CDJ&PRODUCT_ID=P15VPHA7"
     skip: false
 
+  # ── 寬宏 UTK0204（座位圖頁面）────────────────────────────────────────────────
+  - name: "寬宏 P18HBTRS 平面特1區 (4880)"
+    url: "https://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18HBTRS&PRODUCT_ID=P18C4VJ0"
+    check_type: "number_changed"
+    row_contains: "平面特1區"
+    count_col: -1
+    state_key: "kham_P18HBTRS_zone1"
+    use_playwright: false
+    message: "🎫 寬宏 P18HBTRS（8/30）<b>平面特1區</b> 票數變動！\nhttps://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18HBTRS&PRODUCT_ID=P18C4VJ0"
+    skip: false
+
+  - name: "寬宏 P18HBTRS 平面特2區 (4880)"
+    url: "https://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18HBTRS&PRODUCT_ID=P18C4VJ0"
+    check_type: "number_changed"
+    row_contains: "平面特2區"
+    count_col: -1
+    state_key: "kham_P18HBTRS_zone2"
+    use_playwright: false
+    message: "🎫 寬宏 P18HBTRS（8/30）<b>平面特2區</b> 票數變動！\nhttps://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18HBTRS&PRODUCT_ID=P18C4VJ0"
+    skip: false
+
+  - name: "寬宏 P18HBTRS 800全區"
+    url: "https://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18HBTRS&PRODUCT_ID=P18C4VJ0"
+    check_type: "number_changed"
+    row_contains_all: "800元"
+    count_col: -1
+    state_key: "kham_P18HBTRS_800"
+    use_playwright: false
+    message: "🎫 寬宏 P18HBTRS（8/30）<b>800全區</b> 票數變動！\nhttps://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18HBTRS&PRODUCT_ID=P18C4VJ0"
+    skip: false
+
+  - name: "寬宏 P18G5JHE 平面特1區 (4880)"
+    url: "https://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18G5JHE&PRODUCT_ID=P18C4VJ0"
+    check_type: "number_changed"
+    row_contains: "平面特1區"
+    count_col: -1
+    state_key: "kham_P18G5JHE_zone1"
+    use_playwright: false
+    message: "🎫 寬宏 P18G5JHE（8/29）<b>平面特1區</b> 票數變動！\nhttps://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18G5JHE&PRODUCT_ID=P18C4VJ0"
+    skip: false
+
+  - name: "寬宏 P18G5JHE 平面特2區 (4880)"
+    url: "https://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18G5JHE&PRODUCT_ID=P18C4VJ0"
+    check_type: "number_changed"
+    row_contains: "平面特2區"
+    count_col: -1
+    state_key: "kham_P18G5JHE_zone2"
+    use_playwright: false
+    message: "🎫 寬宏 P18G5JHE（8/29）<b>平面特2區</b> 票數變動！\nhttps://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18G5JHE&PRODUCT_ID=P18C4VJ0"
+    skip: false
+
+  - name: "寬宏 P18G5JHE 800全區"
+    url: "https://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18G5JHE&PRODUCT_ID=P18C4VJ0"
+    check_type: "number_changed"
+    row_contains_all: "800元"
+    count_col: -1
+    state_key: "kham_P18G5JHE_800"
+    use_playwright: false
+    message: "🎫 寬宏 P18G5JHE（8/29）<b>800全區</b> 票數變動！\nhttps://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18G5JHE&PRODUCT_ID=P18C4VJ0"
+    skip: false
+
   # ── 龍山寺 ──────────────────────────────────────────────────────────────────
   - name: "龍山寺燈籠磁鐵"
     url: "https://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
