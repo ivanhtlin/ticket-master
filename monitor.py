@@ -5,6 +5,7 @@ import requests
 import yaml
 import time
 import logging
+from datetime import datetime, timezone, timedelta
 from bs4 import BeautifulSoup
 
 logging.basicConfig(
@@ -127,15 +128,17 @@ def fetch(site: dict) -> str | None:
 
 # ── Telegram ──────────────────────────────────────────────────────────────────
 
-def send_telegram(token: str, chat_id: str, text: str) -> None:
+def send_telegram(token: str, chat_id: str, text: str) -> bool:
     api_url = f"https://api.telegram.org/bot{token}/sendMessage"
     payload = {"chat_id": chat_id, "text": text, "parse_mode": "HTML"}
     try:
         resp = requests.post(api_url, json=payload, timeout=10)
         resp.raise_for_status()
         log.info("Telegram notification sent: %s", text)
+        return True
     except requests.RequestException as e:
         log.error("Telegram send failed: %s", e)
+        return False
 
 
 # ── Check logic ───────────────────────────────────────────────────────────────
@@ -278,6 +281,30 @@ def _extract_count(site: dict, soup: BeautifulSoup) -> int | None:
     return None
 
 
+# ── Heartbeat ─────────────────────────────────────────────────────────────────
+
+HEARTBEAT_HOUR_TWN = 9  # 台灣時間 09:00 發送
+_TWN = timezone(timedelta(hours=8))
+
+
+def maybe_send_heartbeat(tg: dict) -> None:
+    now = datetime.now(_TWN)
+    force = os.environ.get("HEARTBEAT_TEST") == "1"
+    if not force and now.hour != HEARTBEAT_HOUR_TWN:
+        return
+    today = now.strftime("%Y-%m-%d")
+    state = load_state()
+    if not force and state.get("heartbeat_date") == today:
+        return
+    ok = send_telegram(
+        tg["token"], tg["chat_id"],
+        f"✅ 票務監控運作正常\n{today} {now.strftime('%H:%M')} (台灣時間)"
+    )
+    if ok:
+        state["heartbeat_date"] = today
+        save_state(state)
+
+
 # ── Main loop ─────────────────────────────────────────────────────────────────
 
 def run_once(config: dict) -> None:
@@ -288,19 +315,25 @@ def run_once(config: dict) -> None:
         log.error("TELEGRAM_TOKEN is not set — notifications will not be sent")
     if not tg.get("chat_id"):
         log.error("TELEGRAM_CHAT_ID is not set — notifications will not be sent")
+    maybe_send_heartbeat(tg)
     for site in config["sites"]:
         if site.get("skip"):
             log.info("[%s] skipped (skip=true in config)", site["name"])
             continue
         if check_site(site):
             msg = site["message"]
-            # Append count-change info for number_changed type
             prev = site.get("_prev_count")
             curr = site.get("_curr_count")
             if prev is not None and curr is not None:
                 direction = "▲" if curr > prev else "▼"
                 msg = f"{msg}\n{direction} {prev} → {curr} 張"
-            send_telegram(tg["token"], tg["chat_id"], msg)
+            ok = send_telegram(tg["token"], tg["chat_id"], msg)
+            if not ok and site.get("check_type") == "number_changed" and prev is not None:
+                # Revert state so next run re-detects the change
+                state = load_state()
+                state_key = site.get("state_key", site["name"])
+                state[state_key] = prev
+                save_state(state)
 
 
 def main(interval: int = 60) -> None:

@@ -3,7 +3,12 @@ name: Ticket Monitor
 on:
   schedule:
     - cron: "*/10 * * * *"  # every 10 minutes
-  workflow_dispatch:         # allow manual trigger
+  workflow_dispatch:
+    inputs:
+      heartbeat_test:
+        description: "Send test heartbeat now (1=yes)"
+        required: false
+        default: "0"
   push:
     branches:
       - main
@@ -41,6 +46,7 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          HEARTBEAT_TEST: ${{ github.event.inputs.heartbeat_test || '0' }}
         run: python -c "import monitor; monitor.run_once(monitor.load_config())"
 
       - name: Save monitor state
