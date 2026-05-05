@@ -12,7 +12,7 @@ sites:
     use_playwright: true
     wait_selector: ".activity-detail, [class*='ticket'], [class*='sold']"
     message: "🎫 遠大 TicketPlus 有票了！\nhttps://ticketplus.com.tw/activity/6501d9f22521787e369776452b6c9a59"
-    skip: true   # temporarily disabled to diagnose workflow hang
+    skip: false
 
   # ── 寬宏 ────────────────────────────────────────────────────────────────────
   - name: "寬宏 P163GNT4"
