@@ -92,12 +92,3 @@ sites:
     message: "🎫 寬宏 P18G5JHE（8/29）<b>800全區</b> 票數變動！\nhttps://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18G5JHE&PRODUCT_ID=P18C4VJ0"
     skip: false
 
-  # ── 龍山寺 ──────────────────────────────────────────────────────────────────
-  - name: "龍山寺燈籠磁鐵"
-    url: "https://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
-    check_type: "text_disappear"
-    target_text: "已銷售完畢"
-    use_playwright: false
-    message: "🛕 龍山寺燈籠磁鐵可以購買了！\nhttps://www.lungshan.org.tw/lstServ/Shopping/shopping_productselection.php"
-    skip: false
-
