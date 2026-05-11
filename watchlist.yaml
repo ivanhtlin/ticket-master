@@ -14,23 +14,6 @@ sites:
     message: "🎫 遠大 TicketPlus 有票了！\nhttps://ticketplus.com.tw/activity/6501d9f22521787e369776452b6c9a59"
     skip: false
 
-  # ── 寬宏 ────────────────────────────────────────────────────────────────────
-  - name: "寬宏 P163GNT4"
-    url: "https://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P163GNT4&PRODUCT_ID=P15VPHA7"
-    check_type: "number_above_zero"
-    selector: "#AMOUNT"
-    use_playwright: false
-    message: "🎫 寬宏 P163GNT4 有票了！\nhttps://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P163GNT4&PRODUCT_ID=P15VPHA7"
-    skip: false
-
-  - name: "寬宏 P15W6CDJ"
-    url: "https://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P15W6CDJ&PRODUCT_ID=P15VPHA7"
-    check_type: "number_above_zero"
-    selector: "#AMOUNT"
-    use_playwright: false
-    message: "🎫 寬宏 P15W6CDJ 有票了！\nhttps://kham.com.tw/application/UTK02/UTK0202_.aspx?PERFORMANCE_ID=P15W6CDJ&PRODUCT_ID=P15VPHA7"
-    skip: false
-
   # ── 寬宏 UTK0204（座位圖頁面）────────────────────────────────────────────────
   - name: "寬宏 P18HBTRS 平面特1區 (4880)"
     url: "https://kham.com.tw/application/UTK02/UTK0204_.aspx?PERFORMANCE_ID=P18HBTRS&PRODUCT_ID=P18C4VJ0"
