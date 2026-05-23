@@ -17,8 +17,9 @@ sites:
   # ── Vaundy TicketPlus 監控 ───────────────────────────────────────────────────
   - name: "Vaundy Activity 場次 (暫無票券)"
     url: "https://ticketplus.com.tw/activity/a56fce0af2da4d41e26b2dfa34b7babc"
-    check_type: "text_disappear"
+    check_type: "text_changed"
     target_text: "暫無票券"
+    state_key: "vaundy_activity_soldout"
     use_playwright: true
     wait_selector: "[class*='ticket'], [class*='session'], [class*='sold']"
     message: "🎫 Vaundy TicketPlus 場次狀態改變！\nhttps://ticketplus.com.tw/activity/a56fce0af2da4d41e26b2dfa34b7babc"

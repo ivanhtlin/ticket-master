@@ -178,6 +178,24 @@ def check_site(site: dict) -> bool:
                  site["name"], selector, text, count, available)
         return available
 
+    if check_type == "text_changed":
+        target = site["target_text"]
+        present = target in soup.get_text()
+        state_key = site.get("state_key", site["name"])
+        state = load_state()
+        prev = state.get(state_key)
+        state[state_key] = present
+        save_state(state)
+        if prev is None:
+            log.info("[%s] first run, text_present=%s — no notification", site["name"], present)
+            return False
+        changed = present != prev
+        log.info("[%s] target_text=%r prev_present=%s now_present=%s → changed=%s",
+                 site["name"], target, prev, present, changed)
+        if changed:
+            site["_text_present"] = present
+        return changed
+
     if check_type == "any_remaining_above_zero":
         pattern = site.get("pattern", r"剩餘\s*(\d[\d,]*)")
         matches = re.findall(pattern, soup.get_text())
