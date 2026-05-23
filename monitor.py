@@ -178,6 +178,15 @@ def check_site(site: dict) -> bool:
                  site["name"], selector, text, count, available)
         return available
 
+    if check_type == "any_remaining_above_zero":
+        pattern = site.get("pattern", r"剩餘\s*(\d[\d,]*)")
+        matches = re.findall(pattern, soup.get_text())
+        counts = [int(m.replace(",", "")) for m in matches]
+        available = any(c > 0 for c in counts)
+        log.info("[%s] pattern=%r counts=%s → available=%s",
+                 site["name"], pattern, counts, available)
+        return available
+
     if check_type == "css_disappear":
         # Element present = sold out; element gone = available
         selector = site.get("selector", "")
