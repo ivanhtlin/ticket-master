@@ -18,7 +18,7 @@ sites:
   - name: "TicketPlus 訂單1 (debf14)"
     url: "https://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/debf14611c86559f4c28d8005b063ccf"
     check_type: "text_disappear"
-    target_text: "銷售一空"
+    target_text: "暫無票券"
     use_playwright: true
     wait_selector: "[class*='ticket'], [class*='order'], [class*='sold'], [class*='remain']"
     message: "🎫 TicketPlus 訂單1 有票了！\nhttps://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/debf14611c86559f4c28d8005b063ccf"
@@ -27,7 +27,7 @@ sites:
   - name: "TicketPlus 訂單2 (083954)"
     url: "https://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/08395a17e23d5664ce65fa61aaaba059"
     check_type: "text_disappear"
-    target_text: "銷售一空"
+    target_text: "暫無票券"
     use_playwright: true
     wait_selector: "[class*='ticket'], [class*='order'], [class*='sold'], [class*='remain']"
     message: "🎫 TicketPlus 訂單2 有票了！\nhttps://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/08395a17e23d5664ce65fa61aaaba059"
