@@ -180,6 +180,7 @@ def check_site(site: dict) -> bool:
 
     if check_type == "text_changed":
         target = site["target_text"]
+        notify_on = site.get("notify_on", "any")  # "disappear", "appear", or "any"
         present = target in soup.get_text()
         state_key = site.get("state_key", site["name"])
         state = load_state()
@@ -190,11 +191,16 @@ def check_site(site: dict) -> bool:
             log.info("[%s] first run, text_present=%s — no notification", site["name"], present)
             return False
         changed = present != prev
-        log.info("[%s] target_text=%r prev_present=%s now_present=%s → changed=%s",
-                 site["name"], target, prev, present, changed)
-        if changed:
-            site["_text_present"] = present
-        return changed
+        log.info("[%s] target_text=%r prev_present=%s now_present=%s → changed=%s notify_on=%s",
+                 site["name"], target, prev, present, changed, notify_on)
+        if not changed:
+            return False
+        if notify_on == "disappear" and present:
+            return False  # text appeared, not disappeared — skip
+        if notify_on == "appear" and not present:
+            return False  # text disappeared, not appeared — skip
+        site["_text_present"] = present
+        return True
 
     if check_type == "any_remaining_above_zero":
         pattern = site.get("pattern", r"剩餘\s*(\d[\d,]*)")
