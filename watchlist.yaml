@@ -15,10 +15,10 @@ sites:
     skip: false
 
   # ── Vaundy TicketPlus 監控 ───────────────────────────────────────────────────
-  - name: "Vaundy Activity 場次 (暫無票券)"
+  - name: "Vaundy Activity 場次 (銷售一空)"
     url: "https://ticketplus.com.tw/activity/a56fce0af2da4d41e26b2dfa34b7babc"
     check_type: "text_changed"
-    target_text: "暫無票券"
+    target_text: "銷售一空"
     state_key: "vaundy_activity_soldout"
     use_playwright: true
     wait_selector: "[class*='ticket'], [class*='session'], [class*='sold']"
