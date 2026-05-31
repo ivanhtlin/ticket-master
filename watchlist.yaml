@@ -4,16 +4,6 @@ telegram:
 
 sites:
 
-  # ── 遠大 TicketPlus ──────────────────────────────────────────────────────────
-  - name: "遠大 TicketPlus"
-    url: "https://ticketplus.com.tw/activity/6501d9f22521787e369776452b6c9a59"
-    check_type: "text_disappear"
-    target_text: "銷售一空"
-    use_playwright: true
-    wait_selector: ".activity-detail, [class*='ticket'], [class*='sold']"
-    message: "🎫 遠大 TicketPlus 有票了！\nhttps://ticketplus.com.tw/activity/6501d9f22521787e369776452b6c9a59"
-    skip: false
-
   # ── Vaundy TicketPlus 監控 ───────────────────────────────────────────────────
   - name: "Vaundy Activity 場次 (銷售一空)"
     url: "https://ticketplus.com.tw/activity/a56fce0af2da4d41e26b2dfa34b7babc"
