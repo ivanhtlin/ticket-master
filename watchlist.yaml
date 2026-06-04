@@ -5,33 +5,20 @@ telegram:
 sites:
 
   # ── Vaundy TicketPlus 監控 ───────────────────────────────────────────────────
-  - name: "Vaundy Activity 場次 (銷售一空)"
-    url: "https://ticketplus.com.tw/activity/a56fce0af2da4d41e26b2dfa34b7babc"
-    check_type: "text_changed"
-    target_text: "銷售一空"
-    notify_on: "disappear"
-    state_key: "vaundy_activity_soldout"
-    use_playwright: true
-    wait_selector: "[class*='ticket'], [class*='session'], [class*='sold']"
-    message: "🎫 Vaundy TicketPlus 場次狀態改變！\nhttps://ticketplus.com.tw/activity/a56fce0af2da4d41e26b2dfa34b7babc"
+  - name: "Vaundy 10/31 票況"
+    check_type: "ticketplus_status"
+    event_id: "a56fce0af2da4d41e26b2dfa34b7babc"
+    session_id: "08395a17e23d5664ce65fa61aaaba059"
+    state_key: "vaundy_sess1_status"
+    message: "🎫 Vaundy 10/31 有票了！\nhttps://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/08395a17e23d5664ce65fa61aaaba059"
     skip: false
 
-  - name: "Vaundy 場次1 剩餘票 (debf14)"
-    url: "https://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/debf14611c86559f4c28d8005b063ccf"
-    check_type: "any_remaining_above_zero"
-    pattern: "剩餘\\s*(\\d[\\d,]*)"
-    use_playwright: true
-    wait_selector: "[class*='ticket'], [class*='remain'], [class*='stock']"
-    message: "🎫 Vaundy 場次1 有剩餘票了！\nhttps://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/debf14611c86559f4c28d8005b063ccf"
-    skip: false
-
-  - name: "Vaundy 場次2 剩餘票 (083954)"
-    url: "https://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/08395a17e23d5664ce65fa61aaaba059"
-    check_type: "any_remaining_above_zero"
-    pattern: "剩餘\\s*(\\d[\\d,]*)"
-    use_playwright: true
-    wait_selector: "[class*='ticket'], [class*='remain'], [class*='stock']"
-    message: "🎫 Vaundy 場次2 有剩餘票了！\nhttps://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/08395a17e23d5664ce65fa61aaaba059"
+  - name: "Vaundy 11/1 票況"
+    check_type: "ticketplus_status"
+    event_id: "a56fce0af2da4d41e26b2dfa34b7babc"
+    session_id: "debf14611c86559f4c28d8005b063ccf"
+    state_key: "vaundy_sess2_status"
+    message: "🎫 Vaundy 11/1 有票了！\nhttps://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/debf14611c86559f4c28d8005b063ccf"
     skip: false
 
   # ── 寬宏 UTK0204（座位圖頁面）────────────────────────────────────────────────

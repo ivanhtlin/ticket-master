@@ -141,10 +141,100 @@ def send_telegram(token: str, chat_id: str, text: str) -> bool:
         return False
 
 
+# ── TicketPlus API status check ───────────────────────────────────────────────
+
+_TP_S3 = "https://apis.ticketplus.com.tw/config/api/v1/getS3"
+_TP_API = "https://apis.ticketplus.com.tw/config/api/v1"
+_TP_HEADERS = {**HEADERS, "Referer": "https://ticketplus.com.tw/"}
+
+
+def check_ticketplus_status(site: dict) -> bool:
+    """Check TicketPlus ticket areas via JSON API (no Playwright needed).
+    Fires when any product transitions from soldout → onsale."""
+    event_id = site["event_id"]
+    session_id = site["session_id"]
+
+    try:
+        r = requests.get(
+            f"{_TP_S3}?path=event/{event_id}/products.json",
+            headers=_TP_HEADERS, timeout=15,
+        )
+        r.raise_for_status()
+        all_products = r.json().get("products", [])
+    except (requests.RequestException, ValueError) as e:
+        log.error("[%s] Failed to fetch products.json: %s", site["name"], e)
+        return False
+
+    product_ids = [p["productId"] for p in all_products if p.get("sessionId") == session_id]
+    if not product_ids:
+        log.warning("[%s] No products found for session %s", site["name"], session_id)
+        return False
+
+    try:
+        r = requests.get(
+            f"{_TP_API}/get",
+            params={"productId": ",".join(product_ids)},
+            headers=_TP_HEADERS, timeout=15,
+        )
+        r.raise_for_status()
+        data = r.json()
+    except (requests.RequestException, ValueError) as e:
+        log.error("[%s] Failed to fetch product status: %s", site["name"], e)
+        return False
+
+    if data.get("errCode") != "00":
+        log.error("[%s] API error: %s", site["name"], data.get("errMsg"))
+        return False
+
+    current = {p["id"]: p["status"] for p in data["result"].get("product", [])}
+    state_key = site.get("state_key", site["name"])
+    state = load_state()
+    prev = state.get(state_key, {})
+    state[state_key] = current
+    save_state(state)
+
+    soldout_n = sum(1 for s in current.values() if s == "soldout")
+    onsale_n = sum(1 for s in current.values() if s == "onsale")
+
+    if not prev:
+        log.info("[%s] First run — soldout=%d onsale=%d", site["name"], soldout_n, onsale_n)
+        return False
+
+    newly_available = [
+        pid for pid, status in current.items()
+        if status == "onsale" and prev.get(pid) == "soldout"
+    ]
+    log.info("[%s] soldout=%d onsale=%d newly_available=%d",
+             site["name"], soldout_n, onsale_n, len(newly_available))
+
+    if not newly_available:
+        return False
+
+    try:
+        r2 = requests.get(
+            f"{_TP_S3}?path=event/{event_id}/ticketAreas.json",
+            headers=_TP_HEADERS, timeout=10,
+        )
+        r2.raise_for_status()
+        area_map = {a["ticketAreaId"]: a["name"] for a in r2.json().get("ticketAreas", [])}
+        pid_to_area = {p["productId"]: p.get("ticketAreaId", "") for p in all_products}
+        area_names = [area_map.get(pid_to_area.get(pid, ""), pid) for pid in newly_available]
+    except Exception:
+        area_names = newly_available
+
+    site["_area_names"] = area_names
+    return True
+
+
 # ── Check logic ───────────────────────────────────────────────────────────────
 
 def check_site(site: dict) -> bool:
     """Return True if tickets are available (notification should fire)."""
+    check_type = site["check_type"]
+
+    if check_type == "ticketplus_status":
+        return check_ticketplus_status(site)
+
     html = fetch(site)
     if html is None:
         return False
@@ -355,6 +445,9 @@ def run_once(config: dict) -> None:
             continue
         if check_site(site):
             msg = site["message"]
+            area_names = site.get("_area_names")
+            if area_names:
+                msg += "\n有票票區：" + "、".join(area_names)
             prev = site.get("_prev_count")
             curr = site.get("_curr_count")
             if prev is not None and curr is not None:
