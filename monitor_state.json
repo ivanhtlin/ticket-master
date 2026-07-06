@@ -5,7 +5,7 @@
   "kham_P18G5JHE_zone1": 0,
   "kham_P18G5JHE_zone2": 0,
   "kham_P18G5JHE_800": 0,
-  "heartbeat_date": "2026-07-05",
+  "heartbeat_date": "2026-07-06",
   "vaundy_sess1_status": {
     "p000014260": "soldout",
     "p000014261": "soldout",
@@ -88,6 +88,7 @@
     "p000014363": "soldout"
   },
   "vaundy_sess2_status": {
+    "p000014364": "soldout",
     "p000014365": "soldout",
     "p000014366": "soldout",
     "p000014367": "soldout",
@@ -165,7 +166,6 @@
     "p000014453": "soldout",
     "p000014454": "soldout",
     "p000014455": "soldout",
-    "p000014456": "soldout",
-    "p000014364": "soldout"
+    "p000014456": "soldout"
   }
 }
