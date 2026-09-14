@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write       # needed to commit monitor_state.json back
+      actions: read         # needed to count runs for the heartbeat
 
     steps:
       - uses: actions/checkout@v4
@@ -47,6 +48,7 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           HEARTBEAT_TEST: ${{ github.event.inputs.heartbeat_test || '0' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python -c "import monitor; monitor.run_once(monitor.load_config())"
 
       - name: Save monitor state

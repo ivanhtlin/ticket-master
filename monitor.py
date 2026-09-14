@@ -409,6 +409,39 @@ def _extract_count(site: dict, soup: BeautifulSoup) -> int | None:
 HEARTBEAT_HOUR_TWN = 9  # 台灣時間 09:00 發送
 _TWN = timezone(timedelta(hours=8))
 
+# 正常情況下 cron-job.org 每 2 分鐘觸發一次 = 一天約 720 次。
+# 低於這個數字代表外部觸發掛了，只剩 GitHub schedule 在撐（實測每天僅 6~8 次）。
+HEARTBEAT_MIN_RUNS_24H = 240  # 約每 6 分鐘一次
+
+
+def count_runs_last_24h() -> int | None:
+    """Count this repo's workflow runs in the past 24h via the GitHub API.
+
+    Returns None when the info isn't available (running outside Actions, or
+    the API call failed) — the heartbeat then just omits the frequency line.
+    """
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo:
+        return None
+
+    since = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    headers = {"Accept": "application/vnd.github+json"}
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    try:
+        r = requests.get(
+            f"https://api.github.com/repos/{repo}/actions/runs",
+            params={"created": f">={since}", "per_page": 1},
+            headers=headers, timeout=10,
+        )
+        r.raise_for_status()
+        return r.json().get("total_count")
+    except (requests.RequestException, ValueError) as e:
+        log.warning("Failed to fetch 24h run count: %s", e)
+        return None
+
 
 def maybe_send_heartbeat(tg: dict) -> None:
     now = datetime.now(_TWN)
@@ -419,11 +452,24 @@ def maybe_send_heartbeat(tg: dict) -> None:
     state = load_state()
     if not force and state.get("heartbeat_date") == today:
         return
-    ok = send_telegram(
-        tg["token"], tg["chat_id"],
-        f"✅ 票務監控運作正常\n{today} {now.strftime('%H:%M')} (台灣時間)"
-    )
-    if ok:
+
+    runs = count_runs_last_24h()
+    degraded = runs is not None and runs < HEARTBEAT_MIN_RUNS_24H
+
+    if degraded:
+        header = "⚠️ 票務監控頻率異常"
+    else:
+        header = "✅ 票務監控運作正常"
+    lines = [header, f"{today} {now.strftime('%H:%M')} (台灣時間)"]
+
+    if runs is not None:
+        every = 24 * 60 / runs if runs else 0
+        interval = f"約每 {every:.0f} 分鐘" if runs else "完全沒跑"
+        lines.append(f"📊 過去 24 小時執行 {runs} 次（{interval}）")
+    if degraded:
+        lines.append("外部觸發可能已失效，請檢查 cron-job.org 的 PAT 是否過期")
+
+    if send_telegram(tg["token"], tg["chat_id"], "\n".join(lines)):
         state["heartbeat_date"] = today
         save_state(state)
 
