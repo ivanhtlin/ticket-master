@@ -271,7 +271,20 @@ def check_site(site: dict) -> bool:
     if check_type == "text_changed":
         target = site["target_text"]
         notify_on = site.get("notify_on", "any")  # "disappear", "appear", or "any"
-        present = target in soup.get_text()
+        scope_selector = site.get("scope_selector")
+        if scope_selector:
+            # Narrow to the first element matching scope_selector whose text contains scope_contains
+            scope_contains = site.get("scope_contains", "")
+            scopes = [el for el in soup.select(scope_selector) if scope_contains in el.get_text()]
+            if not scopes:
+                # Page likely didn't render; don't touch state, or a load failure would look like a change
+                log.warning("[%s] scope %r containing %r not found — skipping",
+                            site["name"], scope_selector, scope_contains)
+                return False
+            page_text = scopes[0].get_text()
+        else:
+            page_text = soup.get_text()
+        present = target in page_text
         state_key = site.get("state_key", site["name"])
         state = load_state()
         prev = state.get(state_key)
