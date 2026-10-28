@@ -11,7 +11,7 @@ sites:
     session_id: "08395a17e23d5664ce65fa61aaaba059"
     state_key: "vaundy_sess1_status"
     message: "🎫 Vaundy 10/31 有票了！\nhttps://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/08395a17e23d5664ce65fa61aaaba059"
-    skip: false
+    skip: true   # 10/31 已有行程，只監控 11/1
 
   - name: "Vaundy 11/1 票況"
     check_type: "ticketplus_status"
