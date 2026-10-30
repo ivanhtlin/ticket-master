@@ -1,5 +1,6 @@
 import os
 import re
+import html
 import json
 import requests
 import yaml
@@ -237,6 +238,7 @@ def check_site(site: dict) -> bool:
 
     html = fetch(site)
     if html is None:
+        site["_failure"] = "頁面抓取失敗（Playwright/網路錯誤）"
         return False
 
     soup = BeautifulSoup(html, "lxml")
@@ -280,6 +282,12 @@ def check_site(site: dict) -> bool:
                 # Page likely didn't render; don't touch state, or a load failure would look like a change
                 log.warning("[%s] scope %r containing %r not found — skipping",
                             site["name"], scope_selector, scope_contains)
+                title = soup.title.get_text(strip=True) if soup.title else "(無標題)"
+                body = re.sub(r"\s+", " ", soup.get_text(" ", strip=True))[:150]
+                site["_failure"] = (
+                    f"找不到區塊 {scope_selector!r}（含 {scope_contains!r}）\n"
+                    f"頁面標題：{title}\n內容開頭：{body}"
+                )
                 return False
             page_text = scopes[0].get_text()
         else:
@@ -487,6 +495,43 @@ def maybe_send_heartbeat(tg: dict) -> None:
         save_state(state)
 
 
+# ── Failure alerting ──────────────────────────────────────────────────────────
+
+FAILURE_ALERT_AFTER = timedelta(minutes=10)  # 持續失敗多久才通知，避免單次抖動就吵
+
+
+def track_failure(tg: dict, site: dict) -> None:
+    """Alert when a site has been failing continuously, and again when it recovers.
+
+    State is only written on transitions (first failure, alert sent, recovery) so a
+    long outage doesn't produce a monitor_state.json commit on every run.
+    """
+    key = site.get("state_key", site["name"]) + "_failing"
+    state = load_state()
+    info = state.get(key)
+    reason = site.get("_failure")
+    now = datetime.now(timezone.utc)
+
+    if reason:
+        if info is None:
+            state[key] = {"since": now.isoformat(), "alerted": False}
+            save_state(state)
+            return
+        if info["alerted"] or now - datetime.fromisoformat(info["since"]) < FAILURE_ALERT_AFTER:
+            return
+        msg = (f"⚠️ 監控失效：{site['name']}\n"
+               f"已持續失敗超過 {int(FAILURE_ALERT_AFTER.total_seconds() // 60)} 分鐘，"
+               f"這段期間偵測不到票況變化。\n{reason}")
+        if send_telegram(tg["token"], tg["chat_id"], html.escape(msg)):
+            info["alerted"] = True
+            save_state(state)
+    elif info is not None:
+        if info["alerted"]:
+            send_telegram(tg["token"], tg["chat_id"], html.escape(f"✅ 監控恢復：{site['name']}"))
+        del state[key]
+        save_state(state)
+
+
 # ── Main loop ─────────────────────────────────────────────────────────────────
 
 def run_once(config: dict) -> None:
@@ -502,7 +547,10 @@ def run_once(config: dict) -> None:
         if site.get("skip"):
             log.info("[%s] skipped (skip=true in config)", site["name"])
             continue
-        if check_site(site):
+        fired = check_site(site)
+        if site["check_type"] == "text_changed":
+            track_failure(tg, site)
+        if fired:
             msg = site["message"]
             area_names = site.get("_area_names")
             if area_names:
