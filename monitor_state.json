@@ -161,5 +161,9 @@
     "p000014455": "soldout",
     "p000014456": "soldout",
     "p000014364": "soldout"
+  },
+  "vaundy_sess2_page_soldout_failing": {
+    "since": "2026-10-30T13:31:24.442989+00:00",
+    "alerted": false
   }
 }
