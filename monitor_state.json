@@ -163,5 +163,9 @@
     "p000014456": "onsale"
   },
   "vaundy_sess2_page_soldout": true,
-  "heartbeat_hour": "2026-10-31 16"
+  "heartbeat_hour": "2026-10-31 16",
+  "vaundy_sess2_page_soldout_failing": {
+    "since": "2026-10-31T08:52:32.326605+00:00",
+    "alerted": false
+  }
 }
