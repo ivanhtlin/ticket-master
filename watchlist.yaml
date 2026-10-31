@@ -33,5 +33,5 @@ sites:
     session_id: "debf14611c86559f4c28d8005b063ccf"
     state_key: "vaundy_sess2_status"
     message: "🎫 Vaundy 11/1 有票了！\nhttps://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/debf14611c86559f4c28d8005b063ccf"
-    skip: true   # 只監控活動頁「銷售一空」
+    skip: false
 
