@@ -24,7 +24,7 @@ sites:
     target_text: "銷售一空"
     notify_on: "disappear"
     state_key: "vaundy_sess2_page_soldout"
-    message: "🎫 Vaundy 11/1 活動頁「銷售一空」消失了，可能有票！\nhttps://ticketplus.com.tw/activity/a56fce0af2da4d41e26b2dfa34b7babc"
+    message: "🎫 Vaundy 11/1 活動頁狀態不再是「銷售一空」，可能有票！\nhttps://ticketplus.com.tw/activity/a56fce0af2da4d41e26b2dfa34b7babc"
     skip: false
 
   - name: "Vaundy 11/1 票況"

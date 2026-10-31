@@ -298,9 +298,13 @@ def check_site(site: dict) -> bool:
         prev = state.get(state_key)
         state[state_key] = present
         save_state(state)
+        if scope_selector:
+            site["_status_text"] = next(reversed(list(scopes[0].stripped_strings)), "")
         if prev is None:
-            log.info("[%s] first run, text_present=%s — no notification", site["name"], present)
-            return False
+            # A first run that already shows a non-target status is worth reporting
+            fire = notify_on in ("disappear", "any") and not present
+            log.info("[%s] first run, text_present=%s → notify=%s", site["name"], present, fire)
+            return fire
         changed = present != prev
         log.info("[%s] target_text=%r prev_present=%s now_present=%s → changed=%s notify_on=%s",
                  site["name"], target, prev, present, changed, notify_on)
@@ -427,16 +431,18 @@ def _extract_count(site: dict, soup: BeautifulSoup) -> int | None:
 
 # ── Heartbeat ─────────────────────────────────────────────────────────────────
 
-HEARTBEAT_HOUR_TWN = 9  # 台灣時間 09:00 發送
 _TWN = timezone(timedelta(hours=8))
 
-# 正常情況下 cron-job.org 每 2 分鐘觸發一次 = 一天約 720 次。
+# Vaundy 演唱會倒數期間：每小時回報一次，到這個時間為止（之後不再發）
+HEARTBEAT_END = datetime(2026, 11, 1, 18, 0, tzinfo=_TWN)
+
+# 正常情況下 cron-job.org 每 2 分鐘觸發一次 = 每小時約 30 次。
 # 低於這個數字代表外部觸發掛了，只剩 GitHub schedule 在撐（實測每天僅 6~8 次）。
-HEARTBEAT_MIN_RUNS_24H = 240  # 約每 6 分鐘一次
+HEARTBEAT_MIN_RUNS_1H = 10  # 約每 6 分鐘一次
 
 
-def count_runs_last_24h() -> int | None:
-    """Count this repo's workflow runs in the past 24h via the GitHub API.
+def count_runs_last_hour() -> int | None:
+    """Count this repo's workflow runs in the past hour via the GitHub API.
 
     Returns None when the info isn't available (running outside Actions, or
     the API call failed) — the heartbeat then just omits the frequency line.
@@ -445,7 +451,7 @@ def count_runs_last_24h() -> int | None:
     if not repo:
         return None
 
-    since = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    since = (datetime.now(timezone.utc) - timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
     headers = {"Accept": "application/vnd.github+json"}
     token = os.environ.get("GITHUB_TOKEN")
     if token:
@@ -460,38 +466,37 @@ def count_runs_last_24h() -> int | None:
         r.raise_for_status()
         return r.json().get("total_count")
     except (requests.RequestException, ValueError) as e:
-        log.warning("Failed to fetch 24h run count: %s", e)
+        log.warning("Failed to fetch 1h run count: %s", e)
         return None
 
 
 def maybe_send_heartbeat(tg: dict) -> None:
     now = datetime.now(_TWN)
     force = os.environ.get("HEARTBEAT_TEST") == "1"
-    if not force and now.hour != HEARTBEAT_HOUR_TWN:
+    if not force and now >= HEARTBEAT_END:
         return
-    today = now.strftime("%Y-%m-%d")
+    this_hour = now.strftime("%Y-%m-%d %H")
     state = load_state()
-    if not force and state.get("heartbeat_date") == today:
+    if not force and state.get("heartbeat_hour") == this_hour:
         return
 
-    runs = count_runs_last_24h()
-    degraded = runs is not None and runs < HEARTBEAT_MIN_RUNS_24H
+    runs = count_runs_last_hour()
+    degraded = runs is not None and runs < HEARTBEAT_MIN_RUNS_1H
 
     if degraded:
         header = "⚠️ 票務監控頻率異常"
     else:
         header = "✅ 票務監控運作正常"
-    lines = [header, f"{today} {now.strftime('%H:%M')} (台灣時間)"]
+    lines = [header, f"{now.strftime('%Y-%m-%d %H:%M')} (台灣時間)"]
 
     if runs is not None:
-        every = 24 * 60 / runs if runs else 0
-        interval = f"約每 {every:.0f} 分鐘" if runs else "完全沒跑"
-        lines.append(f"📊 過去 24 小時執行 {runs} 次（{interval}）")
+        interval = f"約每 {60 / runs:.0f} 分鐘" if runs else "完全沒跑"
+        lines.append(f"📊 過去 1 小時執行 {runs} 次（{interval}）")
     if degraded:
         lines.append("外部觸發可能已失效，請檢查 cron-job.org 的 PAT 是否過期")
 
     if send_telegram(tg["token"], tg["chat_id"], "\n".join(lines)):
-        state["heartbeat_date"] = today
+        state["heartbeat_hour"] = this_hour
         save_state(state)
 
 
@@ -552,6 +557,9 @@ def run_once(config: dict) -> None:
             track_failure(tg, site)
         if fired:
             msg = site["message"]
+            status_text = site.get("_status_text")
+            if status_text:
+                msg += f"\n目前狀態：{status_text}"
             area_names = site.get("_area_names")
             if area_names:
                 msg += "\n有票票區：" + "、".join(area_names)
