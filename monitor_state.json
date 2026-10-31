@@ -134,13 +134,20 @@
     "p000014413": "soldout",
     "p000014414": "soldout",
     "p000014415": "soldout",
+    "p000014416": "soldout",
+    "p000014417": "soldout",
     "p000014418": "soldout",
+    "p000014419": "soldout",
     "p000014420": "soldout",
     "p000014421": "soldout",
+    "p000014422": "soldout",
     "p000014423": "soldout",
     "p000014424": "soldout",
     "p000014425": "soldout",
     "p000014426": "soldout",
+    "p000014427": "soldout",
+    "p000014428": "soldout",
+    "p000014429": "soldout",
     "p000014430": "soldout",
     "p000014431": "soldout",
     "p000014432": "soldout",
@@ -153,19 +160,8 @@
     "p000014453": "soldout",
     "p000014454": "soldout",
     "p000014455": "soldout",
-    "p000014456": "soldout",
-    "p000014417": "soldout",
-    "p000014428": "soldout",
-    "p000014429": "soldout",
-    "p000014419": "soldout",
-    "p000014422": "soldout",
-    "p000014416": "soldout",
-    "p000014427": "soldout"
+    "p000014456": "soldout"
   },
   "vaundy_sess2_page_soldout": true,
-  "heartbeat_hour": "2026-11-01 00",
-  "vaundy_sess2_page_soldout_failing": {
-    "since": "2026-10-31T10:12:40.765694+00:00",
-    "alerted": true
-  }
+  "heartbeat_hour": "2026-11-01 00"
 }
