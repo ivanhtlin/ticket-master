@@ -96,10 +96,17 @@ def fetch_playwright(url: str, wait_selector: str | None = None) -> str | None:
             page.goto(url, timeout=30_000, wait_until="domcontentloaded")
 
             if wait_selector:
-                try:
-                    page.wait_for_selector(wait_selector, timeout=8_000)
-                except PWTimeout:
-                    log.warning("wait_selector %r timed out on %s — using fixed delay", wait_selector, url)
+                # GitHub runners load slower than a desktop, so wait longer and
+                # reload once before giving up.
+                for attempt in (1, 2):
+                    try:
+                        page.wait_for_selector(wait_selector, timeout=20_000)
+                        break
+                    except PWTimeout:
+                        log.warning("wait_selector %r timed out on %s (attempt %d)",
+                                    wait_selector, url, attempt)
+                        if attempt == 1:
+                            page.reload(timeout=30_000, wait_until="domcontentloaded")
 
             page.wait_for_timeout(3_000)
             html = page.content()
