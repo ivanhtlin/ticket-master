@@ -165,7 +165,7 @@
   "vaundy_sess2_page_soldout": true,
   "vaundy_sess2_page_soldout_failing": {
     "since": "2026-10-31T00:58:36.420543+00:00",
-    "alerted": false
+    "alerted": true
   },
   "heartbeat_hour": "2026-10-31 09"
 }
