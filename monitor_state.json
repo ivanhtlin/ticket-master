@@ -166,6 +166,6 @@
   "heartbeat_hour": "2026-11-01 10",
   "vaundy_sess2_page_soldout_failing": {
     "since": "2026-11-01T02:10:50.003821+00:00",
-    "alerted": false
+    "alerted": true
   }
 }
