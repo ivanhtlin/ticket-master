@@ -2,36 +2,5 @@ telegram:
   token: ""      # 從環境變數 TELEGRAM_TOKEN 讀取
   chat_id: ""    # 從環境變數 TELEGRAM_CHAT_ID 讀取
 
-sites:
-
-  # ── Vaundy TicketPlus 監控 ───────────────────────────────────────────────────
-  - name: "Vaundy 10/31 票況"
-    check_type: "ticketplus_status"
-    event_id: "a56fce0af2da4d41e26b2dfa34b7babc"
-    session_id: "08395a17e23d5664ce65fa61aaaba059"
-    state_key: "vaundy_sess1_status"
-    message: "🎫 Vaundy 10/31 有票了！\nhttps://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/08395a17e23d5664ce65fa61aaaba059"
-    skip: true   # 10/31 已有行程，只監控 11/1
-
-  # ── 雙重監控：活動頁（免登入）11/1 場次「售票狀態」欄位 ──────────────────────────
-  - name: "Vaundy 11/1 活動頁售票狀態"
-    check_type: "text_changed"
-    url: "https://ticketplus.com.tw/activity/a56fce0af2da4d41e26b2dfa34b7babc"
-    use_playwright: true
-    wait_selector: ".sesstion-item"
-    scope_selector: ".sesstion-item"
-    scope_contains: "11/1場次"
-    target_text: "銷售一空"
-    notify_on: "disappear"
-    state_key: "vaundy_sess2_page_soldout"
-    message: "🎫 Vaundy 11/1 活動頁狀態不再是「銷售一空」，可能有票！\nhttps://ticketplus.com.tw/activity/a56fce0af2da4d41e26b2dfa34b7babc"
-    skip: false
-
-  - name: "Vaundy 11/1 票況"
-    check_type: "ticketplus_status"
-    event_id: "a56fce0af2da4d41e26b2dfa34b7babc"
-    session_id: "debf14611c86559f4c28d8005b063ccf"
-    state_key: "vaundy_sess2_status"
-    message: "🎫 Vaundy 11/1 有票了！\nhttps://ticketplus.com.tw/order/a56fce0af2da4d41e26b2dfa34b7babc/debf14611c86559f4c28d8005b063ccf"
-    skip: false
-
+# 目前沒有監控任務（Vaundy 演出已於 2026-11-01 結束，已全數移除）
+sites: []
