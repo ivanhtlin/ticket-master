@@ -2,5 +2,44 @@ telegram:
   token: ""      # 從環境變數 TELEGRAM_TOKEN 讀取
   chat_id: ""    # 從環境變數 TELEGRAM_CHAT_ID 讀取
 
-# 目前沒有監控任務（Vaundy 演出已於 2026-11-01 結束，已全數移除）
-sites: []
+sites:
+
+  # ── BABYMONSTER WORLD TOUR [CHOOM] IN TAIPEI（TicketPlus）──────────────────────
+  # 每場兩個監控：API 票區狀態（主要，雲端穩定）+ 活動頁「銷售一空」（備援）
+  - name: "BABYMONSTER 11/21 票況"
+    check_type: "ticketplus_status"
+    event_id: "75a694bf61cb28f0e24835916cfae36e"
+    session_id: "e5b0bd975472de317f809e51f64f0d4b"
+    state_key: "bm_1121_status"
+    message: "🎫 BABYMONSTER 11/21 有票了！\nhttps://ticketplus.com.tw/order/75a694bf61cb28f0e24835916cfae36e/e5b0bd975472de317f809e51f64f0d4b"
+
+  - name: "BABYMONSTER 11/22 票況"
+    check_type: "ticketplus_status"
+    event_id: "75a694bf61cb28f0e24835916cfae36e"
+    session_id: "cc7bebaffee949042a01105dc2eb821c"
+    state_key: "bm_1122_status"
+    message: "🎫 BABYMONSTER 11/22 有票了！\nhttps://ticketplus.com.tw/order/75a694bf61cb28f0e24835916cfae36e/cc7bebaffee949042a01105dc2eb821c"
+
+  - name: "BABYMONSTER 11/21 活動頁售票狀態"
+    check_type: "text_changed"
+    url: "https://ticketplus.com.tw/activity/75a694bf61cb28f0e24835916cfae36e"
+    use_playwright: true
+    wait_selector: ".sesstion-item"
+    scope_selector: ".sesstion-item"
+    scope_contains: "11/21場次"
+    target_text: "銷售一空"
+    notify_on: "disappear"
+    state_key: "bm_1121_page_soldout"
+    message: "🎫 BABYMONSTER 11/21 活動頁狀態不再是「銷售一空」，可能有票！\nhttps://ticketplus.com.tw/activity/75a694bf61cb28f0e24835916cfae36e"
+
+  - name: "BABYMONSTER 11/22 活動頁售票狀態"
+    check_type: "text_changed"
+    url: "https://ticketplus.com.tw/activity/75a694bf61cb28f0e24835916cfae36e"
+    use_playwright: true
+    wait_selector: ".sesstion-item"
+    scope_selector: ".sesstion-item"
+    scope_contains: "11/22場次"
+    target_text: "銷售一空"
+    notify_on: "disappear"
+    state_key: "bm_1122_page_soldout"
+    message: "🎫 BABYMONSTER 11/22 活動頁狀態不再是「銷售一空」，可能有票！\nhttps://ticketplus.com.tw/activity/75a694bf61cb28f0e24835916cfae36e"
