@@ -3,10 +3,10 @@
   "heartbeat_hour": "2026-11-01 17",
   "bm_1121_page_soldout_failing": {
     "since": "2026-11-02T03:22:07.224920+00:00",
-    "alerted": false
+    "alerted": true
   },
   "bm_1122_page_soldout_failing": {
     "since": "2026-11-02T03:22:07.231403+00:00",
-    "alerted": false
+    "alerted": true
   }
 }
