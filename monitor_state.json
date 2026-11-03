@@ -154,5 +154,13 @@
     "p000018648": "soldout"
   },
   "bm_1121_page_soldout": "soldout",
-  "bm_1122_page_soldout": "soldout"
+  "bm_1122_page_soldout": "soldout",
+  "bm_1121_page_soldout_failing": {
+    "since": "2026-11-03T19:36:34.628972+00:00",
+    "alerted": false
+  },
+  "bm_1122_page_soldout_failing": {
+    "since": "2026-11-03T19:36:34.748711+00:00",
+    "alerted": false
+  }
 }
