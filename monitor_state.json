@@ -141,26 +141,18 @@
     "p000018635": "soldout",
     "p000018636": "soldout",
     "p000018637": "soldout",
-    "p000018638": "soldout",
     "p000018639": "soldout",
-    "p000018640": "soldout",
     "p000018641": "soldout",
-    "p000018642": "soldout",
     "p000018643": "soldout",
-    "p000018644": "soldout",
     "p000018645": "soldout",
     "p000018646": "soldout",
+    "p000018640": "soldout",
+    "p000018638": "soldout",
+    "p000018644": "soldout",
     "p000018647": "soldout",
-    "p000018648": "soldout"
+    "p000018648": "soldout",
+    "p000018642": "soldout"
   },
   "bm_1121_page_soldout": "soldout",
-  "bm_1122_page_soldout": "soldout",
-  "bm_1121_page_soldout_failing": {
-    "since": "2026-11-03T20:56:31.478146+00:00",
-    "alerted": true
-  },
-  "bm_1122_page_soldout_failing": {
-    "since": "2026-11-03T20:56:31.575752+00:00",
-    "alerted": true
-  }
+  "bm_1122_page_soldout": "soldout"
 }
