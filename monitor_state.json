@@ -157,10 +157,10 @@
   "bm_1122_page_soldout": true,
   "bm_1121_page_soldout_failing": {
     "since": "2026-11-03T03:36:34.017383+00:00",
-    "alerted": false
+    "alerted": true
   },
   "bm_1122_page_soldout_failing": {
     "since": "2026-11-03T03:36:34.022118+00:00",
-    "alerted": false
+    "alerted": true
   }
 }
