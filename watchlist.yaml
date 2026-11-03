@@ -5,7 +5,7 @@ telegram:
 sites:
 
   # ── BABYMONSTER WORLD TOUR [CHOOM] IN TAIPEI（TicketPlus）──────────────────────
-  # 每場兩個監控：API 票區狀態（主要，雲端穩定）+ 活動頁「銷售一空」（備援）
+  # 每場兩個監控：API 票區狀態（主要，雲端穩定）+ 活動頁場次狀態 API（備援，同樣不需 Playwright）
   - name: "BABYMONSTER 11/21 票況"
     check_type: "ticketplus_status"
     event_id: "75a694bf61cb28f0e24835916cfae36e"
@@ -21,25 +21,17 @@ sites:
     message: "🎫 BABYMONSTER 11/22 有票了！\nhttps://ticketplus.com.tw/order/75a694bf61cb28f0e24835916cfae36e/cc7bebaffee949042a01105dc2eb821c"
 
   - name: "BABYMONSTER 11/21 活動頁售票狀態"
-    check_type: "text_changed"
-    url: "https://ticketplus.com.tw/activity/75a694bf61cb28f0e24835916cfae36e"
-    use_playwright: true
-    wait_selector: ".sesstion-item"
-    scope_selector: ".sesstion-item"
-    scope_contains: "11/21場次"
-    target_text: "銷售一空"
-    notify_on: "disappear"
+    check_type: "ticketplus_session_status"
+    api_event_id: "e000001537"
+    api_session_ids: ["s000002297", "s000002309"]
+    session_date: "2026-11-21"
     state_key: "bm_1121_page_soldout"
     message: "🎫 BABYMONSTER 11/21 活動頁狀態不再是「銷售一空」，可能有票！\nhttps://ticketplus.com.tw/activity/75a694bf61cb28f0e24835916cfae36e"
 
   - name: "BABYMONSTER 11/22 活動頁售票狀態"
-    check_type: "text_changed"
-    url: "https://ticketplus.com.tw/activity/75a694bf61cb28f0e24835916cfae36e"
-    use_playwright: true
-    wait_selector: ".sesstion-item"
-    scope_selector: ".sesstion-item"
-    scope_contains: "11/22場次"
-    target_text: "銷售一空"
-    notify_on: "disappear"
+    check_type: "ticketplus_session_status"
+    api_event_id: "e000001537"
+    api_session_ids: ["s000002297", "s000002309"]
+    session_date: "2026-11-22"
     state_key: "bm_1122_page_soldout"
     message: "🎫 BABYMONSTER 11/22 活動頁狀態不再是「銷售一空」，可能有票！\nhttps://ticketplus.com.tw/activity/75a694bf61cb28f0e24835916cfae36e"

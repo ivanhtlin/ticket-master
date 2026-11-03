@@ -234,6 +234,59 @@ def check_ticketplus_status(site: dict) -> bool:
     return True
 
 
+def check_ticketplus_session(site: dict) -> bool:
+    """Check TicketPlus session-level sale status via JSON API (no Playwright).
+    Fires when the session leaves "soldout" (e.g. soldout -> onsale)."""
+    api_event_id = site["api_event_id"]
+    api_session_ids = site["api_session_ids"]
+    session_date = site["session_date"]  # e.g. "2026-11-21", matched against sessionStart
+
+    try:
+        r = requests.get(
+            f"{_TP_API}/get",
+            params={"eventId": api_event_id, "sessionId": ",".join(api_session_ids)},
+            headers=_TP_HEADERS, timeout=15,
+        )
+        r.raise_for_status()
+        data = r.json()
+    except (requests.RequestException, ValueError) as e:
+        log.error("[%s] Failed to fetch session status: %s", site["name"], e)
+        site["_failure"] = f"API 請求失敗：{e}"
+        return False
+
+    if data.get("errCode") != "00":
+        log.error("[%s] API error: %s", site["name"], data.get("errMsg"))
+        site["_failure"] = f"API 回傳錯誤：{data.get('errMsg')}"
+        return False
+
+    sessions = data.get("result", {}).get("session", [])
+    match = next((s for s in sessions
+                  if str(s.get("sessionStart", "")).startswith(session_date)), None)
+    if match is None or not match.get("status"):
+        log.warning("[%s] No session starting %s in API response", site["name"], session_date)
+        site["_failure"] = f"API 回應中找不到 {session_date} 場次"
+        return False
+
+    status = match["status"]
+    state_key = site.get("state_key", site["name"])
+    state = load_state()
+    prev = state.get(state_key)
+    if prev != status:
+        state[state_key] = status
+        save_state(state)
+
+    site["_status_text"] = status
+    if prev is None:
+        # A first run that already shows a non-soldout status is worth reporting
+        fire = status != "soldout"
+        log.info("[%s] first run, status=%s → notify=%s", site["name"], status, fire)
+        return fire
+
+    fire = prev == "soldout" and status != "soldout"
+    log.info("[%s] prev=%s now=%s → notify=%s", site["name"], prev, status, fire)
+    return fire
+
+
 # ── Check logic ───────────────────────────────────────────────────────────────
 
 def check_site(site: dict) -> bool:
@@ -242,6 +295,9 @@ def check_site(site: dict) -> bool:
 
     if check_type == "ticketplus_status":
         return check_ticketplus_status(site)
+
+    if check_type == "ticketplus_session_status":
+        return check_ticketplus_session(site)
 
     html = fetch(site)
     if html is None:
@@ -560,7 +616,7 @@ def run_once(config: dict) -> None:
             log.info("[%s] skipped (skip=true in config)", site["name"])
             continue
         fired = check_site(site)
-        if site["check_type"] == "text_changed":
+        if site["check_type"] in ("text_changed", "ticketplus_session_status"):
             track_failure(tg, site)
         if fired:
             msg = site["message"]
