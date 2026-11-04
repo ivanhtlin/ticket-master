@@ -496,7 +496,7 @@ def _extract_count(site: dict, soup: BeautifulSoup) -> int | None:
 
 _TWN = timezone(timedelta(hours=8))
 
-# Vaundy 演唱會倒數期間：每小時回報一次，到這個時間為止（之後不再發）
+# 演唱會倒數期間（已結束）：每小時回報一次，到這個時間為止（之後不再發）
 HEARTBEAT_END = datetime(2026, 11, 1, 18, 0, tzinfo=_TWN)
 
 # 正常情況下 cron-job.org 每 2 分鐘觸發一次 = 每小時約 30 次。
