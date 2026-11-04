@@ -1,20 +1,22 @@
 name: Ticket Monitor
 
 on:
-  schedule:
-    - cron: "*/2 * * * *"  # every 2 minutes
+  # PAUSED 2026-11-04 until 2026-11-11: schedule/push disabled, job skipped via `if: false`
+  # schedule:
+  #   - cron: "*/2 * * * *"  # every 2 minutes
   workflow_dispatch:
     inputs:
       heartbeat_test:
         description: "Send test heartbeat now (1=yes)"
         required: false
         default: "0"
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
 
 jobs:
   monitor:
+    if: false  # PAUSED until 2026-11-11 -- remove this line to resume
     runs-on: ubuntu-latest
     permissions:
       contents: write       # needed to commit monitor_state.json back
